@@ -1,0 +1,1 @@
+import './js/service-worker-init.js';

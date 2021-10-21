@@ -1,0 +1,21 @@
+{
+    "name": "<APP_NAME>",
+    "short_name": "<APP_NAME_CAMELIZED>",
+    "start_url": "./",
+    "display": "standalone",
+    "theme_color": "<APP_THEME_COLOR>",
+    "background_color": "<APP_BG_COLOR>",
+    "icons": [
+        {
+            "src": "./images/icons-192.png",
+            "type": "image/png",
+            "sizes": "192x192",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "./images/icons-512.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        }
+    ]
+}
