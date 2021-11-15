@@ -1,5 +1,4 @@
-use std::env;
-use std::fs;
+use std::{ env, fs };
 use image::{ io as image_io, imageops };
 
 use pwa_shell_generator::Config;
@@ -47,7 +46,8 @@ fn main() -> std::io::Result<()> {
 
     let manifest_src = fs::read_to_string("./src/assets/templates/manifest.json")?
         .replace("<APP_NAME>", &config.name)
-        .replace("<APP_NAME_CAMELIZED>", format_app_name(&config.name))
+        .replace("<APP_NAME_CAMELIZED>", &format_app_name(&config.name))
+        .replace("<APP_ORIENTATION>", &config.options.orientation)
         .replace("<APP_THEME_COLOR>", &config.options.theme_color)
         .replace("<APP_BG_COLOR>", &config.options.bg_color);
     fs::write(
@@ -69,7 +69,7 @@ fn main() -> std::io::Result<()> {
         js_src
     )?;
 
-    // TODO how to deal w appVersion which is only supposed to be replaced during deploy-build?
+    // TODO how to deal w appVersion which is only supposed to be replaced during deploy-build? add build script?
     let sw_src = fs::read_to_string("./src/assets/templates/service-worker.js")?
         .replace("<APP_NAME>", &config.name);
     fs::write(
@@ -85,19 +85,18 @@ fn main() -> std::io::Result<()> {
     )?;
 
     // TODO add .gitignore or rm from readme
-
     // TODO init as git repo
+
     Ok(())
 }
 
-// TODO return result instead of panicking
 fn resize_and_save_icon(app_name: &String, img: &image::DynamicImage, size: u32) {
     imageops::resize(img, size, size, imageops::FilterType::CatmullRom)
         .save(format!("../{}/src/images/icons-{}.png", app_name, size))
         .unwrap_or_else(|err| panic!("couldn't save img: {}", err));
 }
 
-fn format_app_name(app_name: &String) -> &str {
-    // TODO format appName into camel-case
-    app_name
+fn format_app_name(app_name: &String) -> String {
+    // TODO properly format appName into camel-case
+    app_name.replace("-", "")
 }

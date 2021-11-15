@@ -16,7 +16,7 @@ A defaultimage is used if not provided.
 The default icon is taken from:
 https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Progressive_Web_Apps_Logo.svg/1920px-Progressive_Web_Apps_Logo.svg.png
 
-## Options:
+## Options
 - wakelock: bool, default: false
 - orientation: [
     any (default)
@@ -36,7 +36,7 @@ https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Progressive_Web_Apps_L
 
 `initPWA foo-bar ./icon.png --wakelock theme_color:green, bg_color: blue, desc:"foo bar", orientation:portrait`
 
-# Generated folder structure:
+# Generated folder structure
 
 ```
 "name"

@@ -15,20 +15,24 @@ pub struct Options {
 }
 
 impl Options {
-    fn new(mut args: env::Args) -> Result<Options, &'static str> {
-        // TODO let user know about unsupported options (check args.count())
-        let wakelock = args.find(|arg| arg == "--wakelock").is_some();
-        let theme_color = get_option_value(&mut args, "theme_color:", "#fff");
-        let bg_color = get_option_value(&mut args, "bg_color:", "#000");
-        let desc = get_option_value(&mut args, "desc:", "A generated pwa");
-        let orientation = get_option_value(&mut args, "orientation:", "any");
+    fn new(args: env::Args) -> Result<Options, &'static str> {
+        let args = args.collect::<Vec<String>>();
+
+        let wakelock = args.contains(&String::from("--wakelock"));
+        let theme_color = get_option_value(&mut args.to_vec(), "theme_color:", "#fff");
+        let bg_color = get_option_value(&mut args.to_vec(), "bg_color:", "#000");
+        let desc = get_option_value(&mut args.to_vec(), "desc:", "A generated pwa");
+        // TODO verify this against list of allowed values (s. readme)
+        let orientation = get_option_value(&mut args.to_vec(), "orientation:", "any");
+
+         // TODO let user know about unsupported options
 
         Ok(Options { wakelock, theme_color, bg_color, desc, orientation })
     }
 }
 
-fn get_option_value(args: &mut env::Args, key: &str, default: &str) -> String {
-    match args.find(|arg| arg.contains(key)) {
+fn get_option_value(args: &mut Vec<String>, key: &str, default: &str) -> String {
+    match args.iter().find(|arg| arg.contains(key)) {
         Some(option) => option.replace(key, ""),
         None => String::from(default)
     }
