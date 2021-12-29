@@ -1,77 +1,83 @@
-use std::{ fmt, env };
+use clap::{ Arg, App };
+use std::fmt;
 
 pub struct Config {
-    pub name: String,
-    pub image_path: String,
-    pub options: Options
-}
-
-pub struct Options {
+    pub path: String,
+    pub icon: String,
     pub wakelock: bool,
     pub theme_color: String,
-    pub bg_color: String,
-    pub desc: String,
+    pub background_color: String,
+    pub description: String,
     pub orientation: String
 }
 
-impl Options {
-    fn new(args: env::Args) -> Result<Options, &'static str> {
-        let args = args.collect::<Vec<String>>();
-
-        let wakelock = args.contains(&String::from("--wakelock"));
-        let theme_color = get_option_value(&mut args.to_vec(), "theme_color:", "#fff");
-        let bg_color = get_option_value(&mut args.to_vec(), "bg_color:", "#000");
-        let desc = get_option_value(&mut args.to_vec(), "desc:", "A generated pwa");
-        // TODO verify this against list of allowed values (s. readme)
-        let orientation = get_option_value(&mut args.to_vec(), "orientation:", "any");
-
-         // TODO let user know about unsupported options
-
-        Ok(Options { wakelock, theme_color, bg_color, desc, orientation })
-    }
-}
-
-fn get_option_value(args: &mut Vec<String>, key: &str, default: &str) -> String {
-    match args.iter().find(|arg| arg.contains(key)) {
-        Some(option) => option.replace(key, ""),
-        None => String::from(default)
-    }
-}
-
 impl Config {
-    pub fn new(mut args: env::Args) -> Result<Config, &'static str> {
-        // first arg is the current file
-        args.next();
+    pub fn new() -> Result<Config, &'static str> {
+        let matches = App::new("PWA shell generator")
+            .version("0.1.0")
+            .author("Andre Nuechter")
+            .about("Generate the shell of a Progressive Web App")
+            .arg(Arg::with_name("path")
+                .required(true)
+                .takes_value(true)
+                // TODO validate name-format?
+                // .validator(fn: (v: String) -> Result<(), String>)
+                .help("The path of your new PWA"))
+            .arg(Arg::with_name("icon")
+                .short("i")
+                .long("icon")
+                .takes_value(true)
+                .default_value("./src/assets/default-icon.png")
+                .help("The icon you want to use"))
+            .arg(Arg::with_name("theme_color")
+                .short("t")
+                .long("theme")
+                .takes_value(true)
+                .default_value("#fff")
+                .help("The desired theme color"))
+            .arg(Arg::with_name("background_color")
+                .short("bg")
+                .long("background")
+                .takes_value(true)
+                .default_value("#000")
+                .help("The desired background color"))
+            .arg(Arg::with_name("description")
+                .short("d")
+                .long("description")
+                .takes_value(true)
+                .default_value("A generated PWA")
+                .help("A short description of the app"))
+            .arg(Arg::with_name("orientation")
+                .short("o")
+                .long("orientation")
+                .takes_value(true)
+                .default_value("any")
+                // TODO verify this against list of allowed values (s. readme)
+                // .validator(fn: (v: String) -> Result<(), String>)
+                .help("The screen orientation for the manifest"))
+            .arg(Arg::with_name("wakelock")
+                .short("w")
+                .long("wakelock")
+                .help("Flag to tell whether the PWA should keep the screen awake"))
+            .get_matches();
 
-        let name = match args.next() {
-            // TODO validate name-format
-            Some(arg) => arg,
-            None => return Err("Didn't specify a name")
-        };
+        let path = matches.value_of("path").unwrap().to_string();
+        let icon = matches.value_of("icon").unwrap().to_string();
+        let theme_color = matches.value_of("theme_color").unwrap().to_string();
+        let background_color = matches.value_of("background_color").unwrap().to_string();
+        let description = matches.value_of("description").unwrap().to_string();
+        let orientation = matches.value_of("orientation").unwrap().to_string();
+        let wakelock = matches.is_present("wakelock");
 
-        let image_path = match args.next() {
-            // TODO load image here?
-            Some(arg) => arg,
-            None => String::from("./src/assets/default-icon.png")
-        };
-
-        let options = Options::new(args).unwrap();
-
-        Ok(Config { name, image_path, options })
-    }
-}
-
-impl fmt::Display for Options {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "wakelock: {}, theme_color: {}, bg_color: {}, desc: {}, orientation: {}",
-            self.wakelock,
-            self.theme_color,
-            self.bg_color,
-            self.desc,
-            self.orientation
-        )
+        Ok(Config {
+            path,
+            icon,
+            theme_color,
+            background_color,
+            description,
+            orientation,
+            wakelock
+        })
     }
 }
 
@@ -79,10 +85,14 @@ impl fmt::Display for Config {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "name: {}, image_path: {}, options: {}",
-            self.name,
-            self.image_path,
-            self.options
+            "name: {}, image_path: {}, theme_color: {}, background_color: {}, description: {}, orientation: {}, wakelock: {}",
+            self.path,
+            self.icon,
+            self.theme_color,
+            self.background_color,
+            self.description,
+            self.orientation,
+            self.wakelock
         )
     }
 }
