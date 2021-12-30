@@ -87,13 +87,29 @@ fn main() -> std::io::Result<()> {
     Ok(())
 }
 
-fn resize_and_save_icon(app_name: &String, img: &image::DynamicImage, size: u32) {
+fn resize_and_save_icon(app_name: &str, img: &image::DynamicImage, size: u32) {
     imageops::resize(img, size, size, imageops::FilterType::CatmullRom)
         .save(format!("../{}/src/images/icons-{}.png", app_name, size))
         .unwrap_or_else(|err| panic!("couldn't save img: {}", err));
 }
 
-fn format_app_name(app_name: &String) -> String {
-    // TODO properly format appName into camel-case
-    app_name.replace("-", "")
+fn format_app_name(app_name: &str) -> String {
+    app_name
+        .split("-")
+        .enumerate()
+        .map(|(index, part)| if index == 0 {
+            String::from(part)
+        } else {
+            some_kind_of_uppercase_first_letter(&part)
+        })
+        .collect()
+}
+
+// https://stackoverflow.com/a/38406885/7732282
+fn some_kind_of_uppercase_first_letter(s: &str) -> String {
+    let mut c = s.chars();
+    match c.next() {
+        None => String::new(),
+        Some(f) => f.to_uppercase().collect::<String>() + c.as_str(),
+    }
 }
