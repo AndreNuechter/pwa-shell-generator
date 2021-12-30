@@ -8,47 +8,47 @@ fn main() -> std::io::Result<()> {
 
     // create folders
     // TODO create /docs or rm from readme
-    fs::create_dir(format!("../{}", config.path))?;
-    fs::create_dir(format!("../{}/src", config.path))?;
-    fs::create_dir(format!("../{}/src/images", config.path))?;
-    fs::create_dir(format!("../{}/src/js", config.path))?;
+    fs::create_dir(format!("../{}", config.name))?;
+    fs::create_dir(format!("../{}/src", config.name))?;
+    fs::create_dir(format!("../{}/src/images", config.name))?;
+    fs::create_dir(format!("../{}/src/js", config.name))?;
 
     // add icons
     let img = image_io::Reader::open(config.icon)?.decode()
         .unwrap_or_else(|err| panic!("could't decode the image: {}", err));
-    resize_and_save_icon(&config.path, &img, 512);
-    resize_and_save_icon(&config.path, &img, 192);
+    resize_and_save_icon(&config.name, &img, 512);
+    resize_and_save_icon(&config.name, &img, 192);
 
     // TODO clean up (=delete created folders), if there's been an error while dealing w the imgs
 
     // add files
     fs::copy(
         "./src/assets/service-worker-init.js",
-        format!("../{}/src/js/service-worker-init.js", config.path)
+        format!("../{}/src/js/service-worker-init.js", config.name)
     )?;
 
     fs::copy(
         "./src/assets/index.css",
-        format!("../{}/src/index.css", config.path)
+        format!("../{}/src/index.css", config.name)
     )?;
 
     let html_src = fs::read_to_string("./src/assets/templates/index.html")?
-        .replace("<APP_NAME>", &config.path)
+        .replace("<APP_NAME>", &config.name)
         .replace("<APP_THEME_COLOR>", &config.theme_color)
         .replace("<APP_DESCRIPTION>", &config.background_color);
     fs::write(
-        format!("../{}/src/index.html", config.path),
+        format!("../{}/src/index.html", config.name),
         html_src
     )?;
 
     let manifest_src = fs::read_to_string("./src/assets/templates/manifest.json")?
-        .replace("<APP_NAME>", &config.path)
-        .replace("<APP_NAME_CAMELIZED>", &format_app_name(&config.path))
+        .replace("<APP_NAME>", &config.name)
+        .replace("<APP_NAME_CAMELIZED>", &format_app_name(&config.name))
         .replace("<APP_ORIENTATION>", &config.orientation)
         .replace("<APP_THEME_COLOR>", &config.theme_color)
         .replace("<APP_BG_COLOR>", &config.background_color);
     fs::write(
-        format!("../{}/src/manifest.json", config.path),
+        format!("../{}/src/manifest.json", config.name),
         manifest_src
     )?;
 
@@ -58,27 +58,27 @@ fn main() -> std::io::Result<()> {
         js_src.push_str("import './js/wakelock.js';");
         fs::copy(
             "./src/assets/wakelock.js",
-            format!("../{}/src/js/wakelock.js", config.path)
+            format!("../{}/src/js/wakelock.js", config.name)
         )?;
     }
     fs::write(
-        format!("../{}/src/index.js", config.path),
+        format!("../{}/src/index.js", config.name),
         js_src
     )?;
 
     // TODO add deno-based build script
     // TODO add node-based build setup and add flag to set that up
     let sw_src = fs::read_to_string("./src/assets/templates/service-worker.js")?
-        .replace("<APP_NAME>", &config.path);
+        .replace("<APP_NAME>", &config.name);
     fs::write(
-        format!("../{}/src/service-worker.js", config.path),
+        format!("../{}/src/service-worker.js", config.name),
         sw_src
     )?;
 
     let readme_src = fs::read_to_string("./src/assets/templates/README.md")?
-        .replace("<APP_NAME>", &config.path);
+        .replace("<APP_NAME>", &config.name);
     fs::write(
-        format!("../{}/README.md", config.path),
+        format!("../{}/README.md", config.name),
         readme_src
     )?;
 

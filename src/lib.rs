@@ -1,8 +1,20 @@
 use clap::{ Arg, App };
 use std::fmt;
+use regex::Regex;
+
+const ORIENTATION_VALUES: [&str; 8] = [
+    "any",
+    "natural",
+    "landscape",
+    "landscape-primary",
+    "landscape-secondary",
+    "portrait",
+    "portrait-primary",
+    "portrait-secondary"
+];
 
 pub struct Config {
-    pub path: String,
+    pub name: String,
     pub icon: String,
     pub wakelock: bool,
     pub theme_color: String,
@@ -14,15 +26,23 @@ pub struct Config {
 impl Config {
     pub fn new() -> Result<Config, &'static str> {
         let matches = App::new("PWA shell generator")
+            // TODO use version from cargo.toml
             .version("0.1.0")
             .author("Andre Nuechter")
             .about("Generate the shell of a Progressive Web App")
-            .arg(Arg::with_name("path")
+            .arg(Arg::with_name("name")
                 .required(true)
                 .takes_value(true)
-                // TODO validate name-format?
-                // .validator(fn: (v: String) -> Result<(), String>)
-                .help("The path of your new PWA"))
+                .validator(|value| {
+                    // NOTE: naively prevent creating anything but a single folder in the current directory
+                    let name_regexp: Regex = Regex::new(r"^[^-\\/.~]+(?:-[^-\\/.~]+)*$").unwrap();
+                    if name_regexp.is_match(&value) {
+                        Ok(())
+                    } else {
+                        Err(String::from("Invalid name format"))
+                    }
+                })
+                .help("The name of your new PWA (^[^-\\/.~]+(?:-[^-\\/.~]+)*$)"))
             .arg(Arg::with_name("icon")
                 .short("i")
                 .long("icon")
@@ -52,8 +72,13 @@ impl Config {
                 .long("orientation")
                 .takes_value(true)
                 .default_value("any")
-                // TODO verify this against list of allowed values (s. readme)
-                // .validator(fn: (v: String) -> Result<(), String>)
+                .validator(|value| {
+                    if ORIENTATION_VALUES.contains(&value.as_str()) {
+                        Ok(())
+                    } else {
+                        Err(String::from("Unknown orientation value"))
+                    }
+                })
                 .help("The screen orientation for the manifest"))
             .arg(Arg::with_name("wakelock")
                 .short("w")
@@ -61,7 +86,7 @@ impl Config {
                 .help("Flag to tell whether the PWA should keep the screen awake"))
             .get_matches();
 
-        let path = matches.value_of("path").unwrap().to_string();
+        let name = matches.value_of("name").unwrap().to_string();
         let icon = matches.value_of("icon").unwrap().to_string();
         let theme_color = matches.value_of("theme_color").unwrap().to_string();
         let background_color = matches.value_of("background_color").unwrap().to_string();
@@ -70,7 +95,7 @@ impl Config {
         let wakelock = matches.is_present("wakelock");
 
         Ok(Config {
-            path,
+            name,
             icon,
             theme_color,
             background_color,
@@ -86,7 +111,7 @@ impl fmt::Display for Config {
         write!(
             f,
             "name: {}, image_path: {}, theme_color: {}, background_color: {}, description: {}, orientation: {}, wakelock: {}",
-            self.path,
+            self.name,
             self.icon,
             self.theme_color,
             self.background_color,
