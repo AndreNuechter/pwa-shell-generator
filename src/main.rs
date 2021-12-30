@@ -5,28 +5,22 @@ use pwa_shell_generator::Config;
 
 fn main() -> std::io::Result<()> {
     let config = Config::new().unwrap();
+    let icon = image_io::Reader::open(config.icon)?.decode()
+        .unwrap_or_else(|err| panic!("couldn't decode the image: {}", err));
 
-    // create folders
-    // TODO create /docs or rm from readme
     fs::create_dir(format!("../{}", config.name))?;
     fs::create_dir(format!("../{}/src", config.name))?;
     fs::create_dir(format!("../{}/src/images", config.name))?;
     fs::create_dir(format!("../{}/src/js", config.name))?;
 
-    // add icons
-    let img = image_io::Reader::open(config.icon)?.decode()
-        .unwrap_or_else(|err| panic!("could't decode the image: {}", err));
-    resize_and_save_icon(&config.name, &img, 512);
-    resize_and_save_icon(&config.name, &img, 192);
+    resize_and_save_icon(&config.name, &icon, 512);
+    resize_and_save_icon(&config.name, &icon, 192);
 
-    // TODO clean up (=delete created folders), if there's been an error while dealing w the imgs
-
-    // add files
+    // copy over and adapt files
     fs::copy(
         "./src/assets/service-worker-init.js",
         format!("../{}/src/js/service-worker-init.js", config.name)
     )?;
-
     fs::copy(
         "./src/assets/index.css",
         format!("../{}/src/index.css", config.name)
@@ -66,7 +60,7 @@ fn main() -> std::io::Result<()> {
         js_src
     )?;
 
-    // TODO add deno-based build script
+    // TODO add deno-based build script (the script needs work and we're missing a dev script as live-server is not optimal)
     // TODO add node-based build setup and add flag to set that up
     let sw_src = fs::read_to_string("./src/assets/templates/service-worker.js")?
         .replace("<APP_NAME>", &config.name);
@@ -82,7 +76,7 @@ fn main() -> std::io::Result<()> {
         readme_src
     )?;
 
-    // TODO add .gitignore and init as git repo
+    // TODO add .gitignore (add node_modules for a node run) and init as git repo
 
     Ok(())
 }

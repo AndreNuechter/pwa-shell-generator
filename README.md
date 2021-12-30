@@ -14,7 +14,6 @@ https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Progressive_Web_Apps_L
 
 ```
 "name"
-|-- docs
 |-- src
 |  |-- images
 |    |-- icon-192.png
