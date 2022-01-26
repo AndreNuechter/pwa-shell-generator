@@ -1,6 +1,7 @@
 # PWA Shell Generator
 
-Generates the skeleton for a Progressive Web App (PWA).
+Generates the scaffolding for a Progressive Web App (PWA).
+By default a BodeJS based dev setup is included.
 
 # Getting started
 
@@ -25,6 +26,8 @@ https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Progressive_Web_Apps_L
 |  |-- index.js
 |  |-- manifest.json
 |  |-- service-worker.js
-|-- .gitignore
+|-- .gitignore (optional)
+|-- package.json (optional)
+|-- gulpfile.js (optional)
 |-- README.md
 ```

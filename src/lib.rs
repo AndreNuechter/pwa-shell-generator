@@ -20,34 +20,33 @@ pub struct Config {
     pub theme_color: String,
     pub background_color: String,
     pub description: String,
-    pub orientation: String
+    pub orientation: String,
+    pub nodejs_based: bool
 }
 
 impl Config {
     pub fn new() -> Result<Config, &'static str> {
         let matches = App::new("PWA shell generator")
-            // TODO use version from cargo.toml
-            .version("0.1.0")
+            .version(env!("CARGO_PKG_VERSION"))
             .author("Andre Nuechter")
             .about("Generate the shell of a Progressive Web App")
             .arg(Arg::with_name("name")
                 .required(true)
                 .takes_value(true)
                 .validator(|value| {
-                    // NOTE: naively prevent creating anything but a single folder in the current directory
-                    let name_regexp: Regex = Regex::new(r"^[^-\\/.~]+(?:-[^-\\/.~]+)*$").unwrap();
+                    let name_regexp: Regex = Regex::new(r"^[a-z0-9]+(?:-[a-z0-9]+)*$").unwrap();
                     if name_regexp.is_match(&value) {
                         Ok(())
                     } else {
                         Err(String::from("Invalid name format"))
                     }
                 })
-                .help("The name of your new PWA (^[^-\\/.~]+(?:-[^-\\/.~]+)*$)"))
+                .help("The name of your new PWA (^[a-z0-9]+(?:-[a-z0-9]+)*$"))
             .arg(Arg::with_name("icon")
                 .short("i")
                 .long("icon")
                 .takes_value(true)
-                .default_value("./src/assets/default-icon.png")
+                .default_value("default")
                 .help("The icon you want to use"))
             .arg(Arg::with_name("theme_color")
                 .short("t")
@@ -84,6 +83,12 @@ impl Config {
                 .short("w")
                 .long("wakelock")
                 .help("Flag to tell whether the PWA should keep the screen awake"))
+            .arg(Arg::with_name("nodejs_based")
+                .short("N")
+                .long("nodejs_based")
+                .takes_value(true)
+                .default_value("true")
+                .help("Include a NodeJS based build-setup"))
             .get_matches();
 
         let name = matches.value_of("name").unwrap().to_string();
@@ -93,6 +98,7 @@ impl Config {
         let description = matches.value_of("description").unwrap().to_string();
         let orientation = matches.value_of("orientation").unwrap().to_string();
         let wakelock = matches.is_present("wakelock");
+        let nodejs_based = matches.value_of("nodejs_based").unwrap().to_string() == "true";
 
         Ok(Config {
             name,
@@ -101,7 +107,8 @@ impl Config {
             background_color,
             description,
             orientation,
-            wakelock
+            wakelock,
+            nodejs_based
         })
     }
 }
