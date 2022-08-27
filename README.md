@@ -1,7 +1,7 @@
 # PWA Shell Generator
 
 Generates the scaffolding for a Progressive Web App (PWA).
-By default a BodeJS based dev setup is included.
+By default a NodeJS based dev setup is included.
 
 # Getting started
 
