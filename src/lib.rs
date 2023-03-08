@@ -21,6 +21,7 @@ pub struct Config {
     pub background_color: String,
     pub description: String,
     pub orientation: String,
+    // TODO rename field `dev_environment` enum [nodejs, deno]
     pub nodejs_based: bool
 }
 

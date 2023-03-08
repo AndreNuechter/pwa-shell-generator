@@ -7,7 +7,7 @@ const {
 const express = require('express');
 const minifyCSS = require('gulp-csso');
 const replace = require('gulp-replace');
-const fs = require('fs/promises');
+const fs = require('fs').promises;
 const gulpEsbuild = require('gulp-esbuild');
 const htmlMinify = require('html-minifier');
 const path = require('path');
